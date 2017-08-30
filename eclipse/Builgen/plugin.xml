@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.popupMenus">
+         <objectContribution  
+           objectClass="org.eclipse.jdt.core.IJavaElement"
+            id="com.popmenu.extend.contribution1"
+            nameFilter="*.java">  
+        <action  
+              class="builgen.action.BuilgenAction"  
+              icon="icons/sample.gif"  
+              id="builgen.action.BuilgenAction"  
+              label="Builgen"  
+              menubarPath="com.ibm.bg.uml.popupMenuGroup"  
+              tooltip="Builgen"/>  
+     </objectContribution>  
+   </extension>
+
+</plugin>
