@@ -47,6 +47,10 @@ public class BuilgenAction extends AnAction {
                 protected void run() throws Throwable {
                     PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(psiClass.getProject());
 
+                    //gen constructor
+                    psiClass.add(elementFactory.createMethodFromText(genNullParamConstructor(psiClass.getName()),psiClass));
+                    psiClass.add(elementFactory.createMethodFromText(genConstructor(psiClass.getName(),fields),psiClass));
+
                     //generate getter/setter
                     genGetterAndSetter(psiClass,fields,elementFactory);
                     //generate builder class
@@ -61,7 +65,7 @@ public class BuilgenAction extends AnAction {
     }
 
     /**
-     * 生成builder class
+     * generate builder class
      * @param psiClass
      * @param fields
      * @param elementFactory
@@ -74,7 +78,7 @@ public class BuilgenAction extends AnAction {
 
         PsiClass psiClassBuilder = elementFactory.createClass(builderName);
         psiClassBuilder.add(elementFactory.createFieldFromText(genFiled(clazzName),psiClassBuilder));
-        psiClassBuilder.add(elementFactory.createMethodFromText(genConstructor(builderName,clazzName),psiClassBuilder));
+        psiClassBuilder.add(elementFactory.createMethodFromText(genBuilderConstructor(builderName,clazzName),psiClassBuilder));
 
         for(PsiField psiField : fields){
             // field type
@@ -114,7 +118,7 @@ public class BuilgenAction extends AnAction {
     private String genBuildMethod(String clazzName) {
         StringBuilder builder = new StringBuilder();
 
-        builder.append("public ").append(clazzName).append(" build(){\n\t return this.").append(firstLowercase(clazzName)).append(";\n}");
+        builder.append("public ").append(clazzName).append(" build(){ return new ").append(clazzName).append("(this.").append(firstLowercase(clazzName)).append(");}");
 
         return builder.toString();
     }
@@ -137,23 +141,55 @@ public class BuilgenAction extends AnAction {
          * }
          */
         builder.append("public ").append(builderClazzName).append(" ").append(fieldName).append("(").append(fieldType).append(" ").append(fieldName)
-                .append("){\n\tthis.").append(firstLowercase(clazzName)).append(".set").append(firstUppercase(fieldName)).append("(")
-                .append(fieldName).append(");\n\treturn this;\n}");
+                .append("){this.").append(firstLowercase(clazzName)).append(".set").append(firstUppercase(fieldName)).append("(")
+                .append(fieldName).append(");return this;}");
 
         return builder.toString();
     }
 
     /**
-     * generate constructor
+     * generate builder constructor
      * @param builderClazzName
      * @param clazzName
      * @return
      */
-    private String genConstructor(String builderClazzName,String clazzName){
+    private String genBuilderConstructor(String builderClazzName,String clazzName){
         StringBuilder builder = new StringBuilder();
 
-        builder.append("public ").append(builderClazzName).append(" () {\n\tthis.")
-                .append(firstLowercase(clazzName)).append(" = new ").append(clazzName).append("();\n}");
+        builder.append("public ").append(builderClazzName).append(" () {this.")
+                .append(firstLowercase(clazzName)).append(" = new ").append(clazzName).append("();}");
+
+        return builder.toString();
+    }
+
+    /**
+     * generate null param constructor
+     * @param clazzName
+     * @return
+     */
+    private String genNullParamConstructor(String clazzName){
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("public ").append(clazzName).append(" () {}");
+
+        return builder.toString();
+    }
+
+    /**
+     * generate null param constructor
+     * @param clazzName
+     * @param fields
+     * @return
+     */
+    private String genConstructor(String clazzName,List<PsiField> fields){
+        StringBuilder builder = new StringBuilder();
+
+        List<String> fieldsAssign = new ArrayList<String>();
+        for (PsiField field : fields) {
+            fieldsAssign.add("this." + field.getName() + " = " + firstLowercase(clazzName) + ".get" + firstUppercase(field.getElementName()) + "();");
+        }
+
+        builder.append("public ").append(clazzName).append(" (").append(clazzName).append(" ").append(firstLowercase(clazzName)).append(") {").append(String.join(" ", fieldsAssign)).append()("}");
 
         return builder.toString();
     }
@@ -168,9 +204,8 @@ public class BuilgenAction extends AnAction {
 
         for (PsiField field : fields) {
 
-            //final/static no getter/setter
-            if(field.getModifierList() != null && !field.getModifierList().hasModifierProperty("final")
-                    && !field.getModifierList().hasModifierProperty("static")){
+            //final no getter/setter
+            if(field.getModifierList() == null || !field.getModifierList().hasModifierProperty("final")){
                 String getMethodContent = genGetMethod(field.getName(),field.getType().getPresentableText());
                 String setMethodContent = genSetMethod(field.getName(),field.getType().getPresentableText());
 
@@ -194,8 +229,8 @@ public class BuilgenAction extends AnAction {
         builder.append("public void set")
                 .append(name.substring(0,1).toUpperCase())
                 .append(name.substring(1))
-                .append("(").append(type).append(" ").append(name).append(") {\n\tthis.")
-                .append(name).append(" = ").append(name).append(";\n}");
+                .append("(").append(type).append(" ").append(name).append(") {this.")
+                .append(name).append(" = ").append(name).append(";}");
 
         return builder.toString();
     }
@@ -211,8 +246,8 @@ public class BuilgenAction extends AnAction {
         builder.append("public ").append(type).append(" get")
                 .append(name.substring(0,1).toUpperCase())
                 .append(name.substring(1))
-                .append("() {\n\t")
-                .append("return this.").append(name).append(";\n}");
+                .append("() {")
+                .append("return this.").append(name).append(";}");
 
         return builder.toString();
     }
