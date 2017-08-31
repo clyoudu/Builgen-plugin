@@ -7,19 +7,18 @@ Builgen plugin for eclipse and idea.Generate code for Java bean builder design p
 ### eclipse
 > Test environment:`JDK 1.8` + `Eclipse Oxygen Release (4.7.0)`
 
-1. Copy [`Builgen_1.0.0.201708310007.jar`](https://github.com/Vabshroo/Builgen-plugin/blob/master/eclipse/Builgen/Builgen_1.0.0.201708310007.jar) to eclipse `plugins` directory.
+1. Copy [`Builgen_1.0.0.201708310007.jar`](https://github.com/Vabshroo/Builgen-plugin/blob/master/eclipse/Builgen/Builgen_1.0.0.201708312118.jar) to eclipse `plugins` directory.
 2. Delete `eclipse\configuration\org.eclipse.update` directory.
 3. Rerun eclipse with `-clean` option(Windows:`cmd->cd $dir_eclipse.exe->run cmd 'eclipse -clean'`).
 4. Create a Java bean like this.
     ```java
-    public class TestJavaBean {
+    public class TestBean {
         private String mes;
         private int[] inteters;
         private List<String> strings;
         private List<Map<String, Object>> ddd;
         private boolean klk;
         private double dst;
-
     }
     ```
 5. Right click on file,click `Builgen` at the end.
@@ -28,7 +27,7 @@ Builgen plugin for eclipse and idea.Generate code for Java bean builder design p
     
 6. Content will be replaced by generated code.
     ```java
-    public class TestJavaBean {
+    public class TestBean {
         private String mes;
         private int[] inteters;
         private List<String> strings;
@@ -36,45 +35,57 @@ Builgen plugin for eclipse and idea.Generate code for Java bean builder design p
         private boolean klk;
         private double dst;
 
-        public static class TestJavaBeanBuilder {
-            TestJavaBean testJavaBean;
+        public TestBean(TestBean testBean) {
+            this.mes = testBean.getMes();
+            this.inteters = testBean.getInteters();
+            this.strings = testBean.getStrings();
+            this.ddd = testBean.getDdd();
+            this.klk = testBean.getKlk();
+            this.dst = testBean.getDst();
+        }
 
-            public TestJavaBeanBuilder() {
-                testJavaBean = new TestJavaBean();
+        public TestBean() {
+        }
+
+        public static class TestBeanBuilder {
+            TestBean testBean;
+
+            public TestBeanBuilder() {
+                testBean = new TestBean();
             }
 
-            public TestJavaBeanBuilder mes(String mes) {
-                testJavaBean.setMes(mes);
+            public TestBeanBuilder mes(String mes) {
+                testBean.setMes(mes);
                 return this;
             }
 
-            public TestJavaBeanBuilder inteters(int[] inteters) {
-                testJavaBean.setInteters(inteters);
+            public TestBeanBuilder inteters(int[] inteters) {
+                testBean.setInteters(inteters);
                 return this;
             }
 
-            public TestJavaBeanBuilder strings(List<String> strings) {
-                testJavaBean.setStrings(strings);
+            public TestBeanBuilder strings(List<String> strings) {
+                testBean.setStrings(strings);
                 return this;
             }
 
-            public TestJavaBeanBuilder ddd(List<Map<String, Object>> ddd) {
-                testJavaBean.setDdd(ddd);
+            public TestBeanBuilder ddd(List<Map<String, Object>> ddd) {
+                testBean.setDdd(ddd);
                 return this;
             }
 
-            public TestJavaBeanBuilder klk(boolean klk) {
-                testJavaBean.setKlk(klk);
+            public TestBeanBuilder klk(boolean klk) {
+                testBean.setKlk(klk);
                 return this;
             }
 
-            public TestJavaBeanBuilder dst(double dst) {
-                testJavaBean.setDst(dst);
+            public TestBeanBuilder dst(double dst) {
+                testBean.setDst(dst);
                 return this;
             }
 
-            public TestJavaBean build() {
-                return this.testJavaBean;
+            public TestBean build() {
+                return new TestBean(this.testBean);
             }
         }
 
@@ -125,7 +136,6 @@ Builgen plugin for eclipse and idea.Generate code for Java bean builder design p
         public String getMes() {
             return this.mes;
         }
-
     }
     ```
 ### idea
