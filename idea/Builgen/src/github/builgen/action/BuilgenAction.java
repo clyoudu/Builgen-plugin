@@ -13,6 +13,7 @@ import com.intellij.psi.util.PsiUtilBase;
 import com.intellij.ui.CollectionListModel;
 
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -186,10 +187,10 @@ public class BuilgenAction extends AnAction {
 
         List<String> fieldsAssign = new ArrayList<String>();
         for (PsiField field : fields) {
-            fieldsAssign.add("this." + field.getName() + " = " + firstLowercase(clazzName) + ".get" + firstUppercase(field.getElementName()) + "();");
+            fieldsAssign.add("this." + field.getName() + " = " + firstLowercase(clazzName) + ".get" + firstUppercase(field.getName()) + "();");
         }
 
-        builder.append("public ").append(clazzName).append(" (").append(clazzName).append(" ").append(firstLowercase(clazzName)).append(") {").append(String.join(" ", fieldsAssign)).append()("}");
+        builder.append("public ").append(clazzName).append(" (").append(clazzName).append(" ").append(firstLowercase(clazzName)).append(") {").append(String.join(" ", fieldsAssign)).append("}");
 
         return builder.toString();
     }
