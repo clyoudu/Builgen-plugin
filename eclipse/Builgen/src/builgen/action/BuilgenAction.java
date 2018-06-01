@@ -33,7 +33,7 @@ public class BuilgenAction implements IEditorActionDelegate {
 	private Shell shell;
 
 	public void alert(Object content) {
-		MessageDialog.openInformation(shell, "��ʾ", content + "");
+		MessageDialog.openInformation(shell, "ÌáÊ¾", content + "");
 	}
 
 	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
@@ -108,11 +108,21 @@ public class BuilgenAction implements IEditorActionDelegate {
 	 * @throws JavaModelException
 	 * @throws IllegalArgumentException
 	 */
+		/**
+	 * generate builder
+	 * 
+	 * @param typeName
+	 * @param fieldTypes
+	 * @return
+	 * @throws JavaModelException
+	 * @throws IllegalArgumentException
+	 */
 	private String genBuilder(String typeName, List<IField> fieldTypes)
 			throws IllegalArgumentException, JavaModelException {
 		StringBuilder builder = new StringBuilder();
-
-		String builderTypeName = typeName + "Builder";
+		
+		String builderTypeName = genBuilderTypeName(typeName);
+		
 		builder.append("public static class ").append(builderTypeName).append("{").append(typeName).append(" ")
 				.append(firstCharLowercase(typeName)).append(";")
 				.append(genBuilderConstructor(builderTypeName, typeName)).append("");
@@ -123,13 +133,29 @@ public class BuilgenAction implements IEditorActionDelegate {
 					field.getElementName())).append("");
 
 		}
+		builder.append(genStaticCreator(typeName));
 		builder.append(genBuilMethod(typeName)).append("}");
 
 		return builder.toString();
 	}
+	
+	public static final String builderTypeName = "Builder";
+	
+	public static String genBuilderTypeName(String typeName) {
+		return typeName + builderTypeName;
+	}
 
 	public void selectionChanged(IAction action, ISelection selection) {
 		this.selection = selection;
+	}
+	
+	private String genStaticCreator(String beanName) {
+		StringBuilder builder = new StringBuilder();
+		String builderType =genBuilderTypeName(beanName);
+		builder.append("public static ").append(builderType).append(" create(){");
+		builder.append("return new ").append(builderType).append("();");
+		builder.append("}");
+		return builder.toString();
 	}
 
 	/**
