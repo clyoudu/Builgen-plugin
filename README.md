@@ -146,5 +146,3 @@ Builgen plugin for eclipse and idea.Generate code for Java bean builder design p
 3. New class and right click inside editor for context menu,then `Generate -> Builgen`.
 
     ![idea-rk](idea/Builgen/screenshot/idea-rk.png)
-    
-4. Builder class lost modifier `static`,add if necessary.
